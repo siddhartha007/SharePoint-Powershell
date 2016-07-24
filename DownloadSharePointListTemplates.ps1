@@ -23,7 +23,7 @@ foreach($list in $lists)
 }
 
 $SPSite = Get-SPSite "http://dell-pc/"
-$SPWeb=$SPSite.OpenWeb()
+$SPWeb = $SPSite.OpenWeb()
 $files = $SPWeb.GetFolder("_catalogs/lt").Files
 
 foreach ($file in $files) {
