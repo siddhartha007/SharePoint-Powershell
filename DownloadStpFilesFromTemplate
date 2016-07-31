@@ -1,0 +1,50 @@
+
+
+
+Try {
+
+$topLevelSite="http://dell-PC/"
+
+$localTemplateFolderPath="C:\Sidd\Learning\PS\"
+$projectName="NNGRITS_"
+
+#Site url from where the list is downloaded
+$sourceWebUrl = "http://dell-pc/NNGRITS/";
+$SprintName="3_"
+
+$lists = @("CaseList",
+
+"CaseStatus");
+$web=Get-SPWeb $sourceWebUrl
+foreach($list in $lists)
+{
+    "Saving lists as template in template gallary  " + $sourceWebUrl + "/lists/" + $list
+	$listref = $web.Lists[$list]	
+    if ($list -eq "CaseList") {    
+    $listref.SaveAsTemplate($projectName+$SprintName+$list+".stp",$projectName+$SprintName+$list,$list+" Template Description",0)
+    }
+    else{
+    $listref.SaveAsTemplate($projectName+$SprintName+$list+".stp",$projectName+$SprintName+$list,$list+" Template Description",1)
+    }
+}
+
+$SPSite = Get-SPSite $topLevelSite
+$SPWeb = $SPSite.OpenWeb()
+$files = $SPWeb.GetFolder("_catalogs/lt").Files
+
+foreach ($file in $files) {
+    "Downloading stp files "+ $file.Name
+    $b = $file.OpenBinary()
+    $fs = New-Object System.IO.FileStream(($localTemplateFolderPath+$file.Name), [System.IO.FileMode]::Create)
+    $bw = New-Object System.IO.BinaryWriter($fs)
+    $bw.Write($b)
+    $bw.Close()
+}
+}
+Catch
+{
+    $ErrorMessage = $_.Exception.Message
+    $FailedItem = $_.Exception.ItemName
+    #Send-MailMessage -From ExpensesBot@MyCompany.Com -To WinAdmin@MyCompany.Com -Subject "HR File Read Failed!" -SmtpServer EXCH01.AD.MyCompany.Com -Body "We failed to read file $FailedItem. The error message was $ErrorMessage"
+    Break
+}
