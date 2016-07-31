@@ -1,0 +1,49 @@
+
+
+
+#Add-PSSnapin "Microsoft.SharePoint.PowerShell"
+
+#Top level site where list temapltes will be uploaded
+$topLevelSite="http://dell-PC/"
+$destinationWeb="http://dell-PC/NNGRITS"
+$localTemplateFolderPath="C:\Sidd\Learning\PS\"
+$projectName="NNGRITS_"
+$sprintName="3_"
+
+$lists=@("CaseList","CaseStatus")
+
+
+
+
+$site = get-spsite $topLevelSite
+$targetWeb=get-spweb $destinationWeb
+$web = $site.OpenWeb()
+
+foreach($list in $lists)
+{
+Write-Output "list name"  $list
+
+Write-Output $list  " going to be created"
+
+$spFolder = $web.getfolder("List Template Gallery")
+
+$spfilecollection = $spfolder.files
+
+$templateWithPath = $localTemplateFolderPath+$projectName+$sprintName + $list + ".stp"
+
+Write-Output $templateWithPath " going to be uploaded for the list named "  $list
+
+$file = get-item $templateWithPath
+$spfilecollection.Add("_catalogs/lt/" +$projectName+$sprintName+ $list +".stp", $file.OpenRead(), $true)
+
+$listTemplates = $site.GetCustomListTemplates($web)
+
+$templateName=$projectName+$sprintName+$list
+
+Write-Output "list template"  $listTemplates[$templateName]
+Write-Output "list name"  $list
+Write-Output "template Name " $templateName
+
+$targetWeb.Lists.Add($list, "abc", $listTemplates[$templateName])
+
+}
